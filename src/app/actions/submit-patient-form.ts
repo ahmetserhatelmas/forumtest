@@ -1,0 +1,78 @@
+"use server";
+
+import { createServiceClient } from "@/lib/supabase/service";
+import type { PatientFormData } from "@/types/patient-form";
+import type { LanguageCode } from "@/constants/languages";
+
+export type SubmitErrorCode =
+  | "invalid"
+  | "incomplete"
+  | "insertFailed"
+  | "uploadFailed"
+  | "unknown";
+
+type SubmitResult =
+  | { ok: true; id: string }
+  | { ok: false; code: SubmitErrorCode };
+
+export async function submitPatientForm(formData: FormData): Promise<SubmitResult> {
+  try {
+    const payloadRaw = formData.get("payload");
+    if (typeof payloadRaw !== "string") {
+      return { ok: false, code: "invalid" };
+    }
+    const parsed = JSON.parse(payloadRaw) as {
+      language: LanguageCode;
+      form: PatientFormData;
+    };
+    const { language, form } = parsed;
+    if (!language || !form?.patient) {
+      return { ok: false, code: "incomplete" };
+    }
+
+    const supabase = createServiceClient();
+    const fullName = form.patient.fullName?.trim() || null;
+
+    const { data: row, error: insertError } = await supabase
+      .from("submissions")
+      .insert({
+        language,
+        full_name: fullName,
+        form_data: form as unknown as Record<string, unknown>,
+        attachment_path: null,
+      })
+      .select("id")
+      .single();
+
+    if (insertError || !row) {
+      console.error(insertError);
+      return { ok: false, code: "insertFailed" };
+    }
+
+    const file = formData.get("file");
+    if (file instanceof File && file.size > 0) {
+      const ext = file.name.split(".").pop()?.slice(0, 8) || "dat";
+      const path = `${row.id}/upload.${ext}`;
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const { error: upErr } = await supabase.storage
+        .from("form-attachments")
+        .upload(path, buffer, {
+          contentType: file.type || "application/octet-stream",
+          upsert: true,
+        });
+      if (upErr) {
+        console.error(upErr);
+        return { ok: false, code: "uploadFailed" };
+      }
+      await supabase
+        .from("submissions")
+        .update({ attachment_path: path })
+        .eq("id", row.id);
+    }
+
+    return { ok: true, id: row.id };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, code: "unknown" };
+  }
+}
