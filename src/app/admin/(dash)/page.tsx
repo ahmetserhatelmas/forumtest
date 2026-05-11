@@ -178,57 +178,104 @@ export default async function AdminSubmissionsPage({
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-2xl border border-violet-100 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-violet-100 text-sm">
-          <thead className="bg-violet-50/80">
-            <tr>
-              <th className="px-4 py-3 text-left font-semibold text-violet-950">
-                Tarih
-              </th>
-              <th className="px-4 py-3 text-left font-semibold text-violet-950">
-                Dil
-              </th>
-              <th className="px-4 py-3 text-left font-semibold text-violet-950">
-                Hasta
-              </th>
-              <th className="px-4 py-3 text-right font-semibold text-violet-950">
-                Detay
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-violet-50">
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-zinc-500">
-                  Kayıt bulunamadı.
-                </td>
-              </tr>
-            ) : (
-              rows.map((r) => (
-                <tr key={r.id} className="hover:bg-violet-50/40">
-                  <td className="whitespace-nowrap px-4 py-3 text-zinc-700">
-                    {new Date(r.created_at).toLocaleString("tr-TR")}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-800">
-                    {languageLabel(r.language)}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-900">
-                    {r.full_name?.trim() || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/admin/${r.id}`}
-                      className="font-semibold text-violet-700 hover:underline"
-                    >
-                      Aç
-                    </Link>
-                  </td>
+      {!error &&
+        (rows.length === 0 ? (
+          <div className="rounded-2xl border border-violet-100 bg-white px-4 py-10 text-center text-sm text-zinc-500 shadow-sm">
+            Kayıt bulunamadı.
+          </div>
+        ) : (
+          <>
+            <ul className="space-y-3 md:hidden">
+            {rows.map((r) => (
+              <li
+                key={r.id}
+                className="rounded-2xl border border-violet-100 bg-white p-4 shadow-sm"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1 space-y-2 text-sm">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-violet-800">
+                        Tarih
+                      </p>
+                      <p className="text-zinc-800">
+                        {new Date(r.created_at).toLocaleString("tr-TR")}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1">
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wide text-violet-800">
+                          Dil
+                        </p>
+                        <p className="text-zinc-800">{languageLabel(r.language)}</p>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-medium uppercase tracking-wide text-violet-800">
+                          Hasta
+                        </p>
+                        <p className="truncate text-zinc-900">
+                          {r.full_name?.trim() || "—"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <Link
+                    href={`/admin/${r.id}`}
+                    className="inline-flex shrink-0 items-center justify-center rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-violet-700"
+                  >
+                    Detayı aç
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden overflow-x-auto rounded-2xl border border-violet-100 bg-white shadow-sm md:block">
+            <table className="min-w-[640px] w-full divide-y divide-violet-100 text-sm">
+              <thead className="bg-violet-50/80">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold text-violet-950">
+                    Tarih
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold text-violet-950">
+                    Dil
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold text-violet-950">
+                    Hasta
+                  </th>
+                  <th className="px-4 py-3 text-right font-semibold text-violet-950">
+                    Detay
+                  </th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-violet-50">
+                {rows.map((r) => (
+                  <tr key={r.id} className="hover:bg-violet-50/40">
+                    <td className="whitespace-nowrap px-4 py-3 text-zinc-700">
+                      {new Date(r.created_at).toLocaleString("tr-TR")}
+                    </td>
+                    <td className="px-4 py-3 text-zinc-800">
+                      {languageLabel(r.language)}
+                    </td>
+                    <td className="px-4 py-3 text-zinc-900">
+                      {r.full_name?.trim() || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        href={`/admin/${r.id}`}
+                        className="font-semibold text-violet-700 hover:underline"
+                      >
+                        Aç
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          </>
+        )
+      )}
+
     </div>
   );
 }

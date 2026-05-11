@@ -38,7 +38,7 @@ export default async function AdminSubmissionDetailPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 max-w-full space-y-6 overflow-x-clip">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href="/admin"

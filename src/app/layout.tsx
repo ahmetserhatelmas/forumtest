@@ -23,8 +23,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={`${sans.variable} ${serif.variable} h-full`}>
-      <body className="min-h-full font-sans antialiased">{children}</body>
+    <html
+      lang="tr"
+      className={`${sans.variable} ${serif.variable} h-full overflow-x-clip`}
+    >
+      <body className="min-h-full max-w-full overflow-x-clip font-sans antialiased">
+        {children}
+      </body>
     </html>
   );
 }

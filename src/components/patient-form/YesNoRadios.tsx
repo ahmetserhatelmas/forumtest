@@ -27,8 +27,8 @@ export function YesNoRadios<T extends FieldValues>({
           {groupLabel ? `${groupLabel} — ${yesLabel} / ${noLabel}` : `${yesLabel} / ${noLabel}`}
         </legend>
       )}
-      <div className="mt-2 flex flex-wrap gap-4">
-        <label className="inline-flex cursor-pointer items-center gap-2 text-sm">
+      <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+        <label className="inline-flex min-w-0 cursor-pointer items-center gap-2 text-sm">
           <input
             type="radio"
             value="evet"
@@ -37,7 +37,7 @@ export function YesNoRadios<T extends FieldValues>({
           />
           {yesLabel}
         </label>
-        <label className="inline-flex cursor-pointer items-center gap-2 text-sm">
+        <label className="inline-flex min-w-0 cursor-pointer items-center gap-2 text-sm">
           <input
             type="radio"
             value="hayir"

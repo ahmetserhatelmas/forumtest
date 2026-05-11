@@ -1,22 +1,36 @@
 import type { ReactNode } from "react";
+import type { PatientFormSectionKey } from "./section-icon-config";
+import { PATIENT_FORM_SECTION_ICONS } from "./section-icon-config";
 
 export function Section({
   title,
+  sectionKey,
   children,
   className = "",
 }: {
   title: string;
+  sectionKey?: PatientFormSectionKey;
   children: ReactNode;
   className?: string;
 }) {
+  const Icon = sectionKey ? PATIENT_FORM_SECTION_ICONS[sectionKey] : undefined;
+
   return (
     <section
-      className={`rounded-2xl border border-violet-100 bg-white/90 p-6 shadow-sm shadow-violet-100/80 backdrop-blur-sm ${className}`}
+      className={`min-w-0 max-w-full overflow-x-clip rounded-2xl border border-violet-100 bg-white/90 p-4 shadow-sm shadow-violet-100/80 backdrop-blur-sm sm:p-6 ${className}`}
     >
-      <h2 className="font-serif text-xl font-semibold tracking-tight text-violet-950 md:text-2xl">
-        {title}
+      <h2 className="flex items-center gap-3 font-serif text-xl font-semibold tracking-tight text-violet-950 md:text-2xl">
+        {Icon ? (
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100/90 text-violet-700 ring-1 ring-violet-200/60"
+            aria-hidden
+          >
+            <Icon className="h-5 w-5" strokeWidth={1.75} />
+          </span>
+        ) : null}
+        <span className="min-w-0 flex-1 leading-snug">{title}</span>
       </h2>
-      <div className="mt-5 space-y-4">{children}</div>
+      <div className="mt-5 min-w-0 space-y-4">{children}</div>
     </section>
   );
 }

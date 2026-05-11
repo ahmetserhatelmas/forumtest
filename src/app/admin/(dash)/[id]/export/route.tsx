@@ -1,6 +1,7 @@
+import { renderToBuffer } from "@react-pdf/renderer";
 import { NextResponse } from "next/server";
+import { PatientFormPdfDocument } from "@/components/patient-form/PatientFormPdfDocument";
 import type { LanguageCode } from "@/constants/languages";
-import { buildPatientFormExportHtml } from "@/lib/build-patient-form-export-html";
 import { normalizePatientFormData } from "@/lib/normalize-patient-form-data";
 import { createClient } from "@/lib/supabase/server";
 
@@ -30,20 +31,23 @@ export async function GET(
   const submissionLang = (data.language as LanguageCode) || "tr";
   const formData = normalizePatientFormData(data.form_data, submissionLang);
 
-  const inner = buildPatientFormExportHtml(formData, {
-    id: data.id,
-    createdAt: data.created_at,
-    fullName: data.full_name,
-    language: data.language,
-  });
+  const buffer = await renderToBuffer(
+    <PatientFormPdfDocument
+      data={formData}
+      meta={{
+        id: data.id,
+        createdAt: data.created_at,
+        fullName: data.full_name,
+        language: data.language,
+      }}
+    />,
+  );
 
-  const html = `<!DOCTYPE html><html lang="${submissionLang}"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Başvuru ${data.id}</title></head><body>${inner}</body></html>`;
-
-  return new NextResponse(html, {
+  return new NextResponse(new Uint8Array(buffer), {
     status: 200,
     headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Content-Disposition": `attachment; filename="basvuru-${id}.html"`,
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="basvuru-${id}.pdf"`,
     },
   });
 }

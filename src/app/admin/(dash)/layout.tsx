@@ -8,7 +8,7 @@ export default function AdminDashLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-zinc-50">
+    <div className="flex min-h-screen min-w-0 bg-zinc-50 overflow-x-clip">
       <aside className="hidden w-64 flex-col border-r border-violet-900/20 bg-violet-700 text-white md:flex">
         <div className="border-b border-white/10 px-5 py-6">
           <BrandLogo variant="dark" />
@@ -37,7 +37,7 @@ export default function AdminDashLayout({
           </button>
         </form>
       </aside>
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-clip">
         <header className="flex items-center justify-between border-b border-violet-100 bg-white px-4 py-3 md:hidden">
           <span className="font-serif text-lg font-semibold text-violet-950">Admin</span>
           <form action={signOut}>
@@ -46,7 +46,9 @@ export default function AdminDashLayout({
             </button>
           </form>
         </header>
-        <main className="flex-1 p-4 md:p-8">{children}</main>
+        <main className="min-w-0 flex-1 overflow-x-clip p-4 md:p-8">
+          {children}
+        </main>
       </div>
     </div>
   );

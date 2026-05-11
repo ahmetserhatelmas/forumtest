@@ -159,8 +159,8 @@ function RoYesNo({
       ) : (
         <legend className="sr-only">{`${groupLabel} — ${yesLabel} / ${noLabel}`}</legend>
       )}
-      <div className="mt-2 flex flex-wrap gap-4">
-        <label className="inline-flex items-center gap-2 text-sm text-zinc-700">
+      <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+        <label className="inline-flex min-w-0 items-center gap-2 text-sm text-zinc-700">
           <input
             type="radio"
             name={radioName}
@@ -171,7 +171,7 @@ function RoYesNo({
           />
           {yesLabel}
         </label>
-        <label className="inline-flex items-center gap-2 text-sm text-zinc-700">
+        <label className="inline-flex min-w-0 items-center gap-2 text-sm text-zinc-700">
           <input
             type="radio"
             name={radioName}
@@ -199,8 +199,8 @@ export function PatientFormReadOnly({
   const m = getPatientFormMessages(data.language);
 
   return (
-    <div className="space-y-6" dir={m.dir}>
-      <Section title={m.section.patient}>
+    <div className="min-w-0 max-w-full space-y-6 overflow-x-clip" dir={m.dir}>
+      <Section sectionKey="patient" title={m.section.patient}>
         <FieldGrid>
           <div>
             <Label htmlFor="ro-fullName">{m.label.fullName}</Label>
@@ -221,7 +221,7 @@ export function PatientFormReadOnly({
         </FieldGrid>
       </Section>
 
-      <Section title={m.section.emergency}>
+      <Section sectionKey="emergency" title={m.section.emergency}>
         <FieldGrid>
           <div>
             <Label htmlFor="ro-emn">{m.label.emFullName}</Label>
@@ -242,17 +242,25 @@ export function PatientFormReadOnly({
         </FieldGrid>
       </Section>
 
-      <Section title={m.section.bmi}>
+      <Section sectionKey="bmi" title={m.section.bmi}>
         <FieldGrid>
           <div>
             <Label htmlFor="ro-hcm">{m.label.heightCm}</Label>
             <RoInput id="ro-hcm" value={data.bmi.heightCm} />
           </div>
-          <div>
+          <div className="min-w-0">
             <Label>{m.label.feetInch}</Label>
-            <div className="mt-1 flex gap-2">
-              <RoInput placeholder={m.label.ft} value={data.bmi.heightFt} />
-              <RoInput placeholder={m.label.inch} value={data.bmi.heightIn} />
+            <div className="mt-1 flex min-w-0 flex-col gap-2 sm:flex-row sm:gap-2">
+              <RoInput
+                className="min-w-0 flex-1"
+                placeholder={m.label.ft}
+                value={data.bmi.heightFt}
+              />
+              <RoInput
+                className="min-w-0 flex-1"
+                placeholder={m.label.inch}
+                value={data.bmi.heightIn}
+              />
             </div>
           </div>
           <div>
@@ -274,7 +282,7 @@ export function PatientFormReadOnly({
         </FieldGrid>
       </Section>
 
-      <Section title={m.section.priorSurgery}>
+      <Section sectionKey="priorSurgery" title={m.section.priorSurgery}>
         <RoYesNo
           radioName="ro-prior-had"
           legend=""
@@ -287,35 +295,30 @@ export function PatientFormReadOnly({
           <Label htmlFor="ro-psd">{m.common.detailIfAny}</Label>
           <RoTextArea id="ro-psd" rows={3} value={data.priorSurgery.detail} />
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[480px] border-collapse text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-violet-800">
-                <th className="pb-2 pr-2">{m.label.type}</th>
-                <th className="pb-2 pr-2">{m.label.reason}</th>
-                <th className="pb-2">{m.label.date}</th>
-              </tr>
-            </thead>
-            <tbody className="align-top">
-              {data.priorSurgery.rows.map((row, index) => (
-                <tr key={`ps-${index}`} className="border-t border-violet-100">
-                  <td className="py-2 pr-2">
-                    <RoInput value={row.type} />
-                  </td>
-                  <td className="py-2 pr-2">
-                    <RoInput value={row.reason} />
-                  </td>
-                  <td className="py-2">
-                    <RoInput value={row.date} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="space-y-4">
+          {data.priorSurgery.rows.map((row, index) => (
+            <div
+              key={`ps-${index}`}
+              className="space-y-3 rounded-xl border border-violet-100 bg-violet-50/40 p-4"
+            >
+              <div>
+                <Label>{m.label.type}</Label>
+                <RoInput value={row.type} />
+              </div>
+              <div>
+                <Label>{m.label.reason}</Label>
+                <RoInput value={row.reason} />
+              </div>
+              <div>
+                <Label>{m.label.date}</Label>
+                <RoInput value={row.date} />
+              </div>
+            </div>
+          ))}
         </div>
       </Section>
 
-      <Section title={m.section.seriousInjury}>
+      <Section sectionKey="seriousInjury" title={m.section.seriousInjury}>
         <RoYesNo
           radioName="ro-serious-had"
           legend=""
@@ -330,7 +333,7 @@ export function PatientFormReadOnly({
         </div>
       </Section>
 
-      <Section title={m.label.bloodTransfusion}>
+      <Section sectionKey="bloodTransfusion" title={m.label.bloodTransfusion}>
         <RoYesNo
           radioName="ro-blood"
           legend=""
@@ -341,7 +344,7 @@ export function PatientFormReadOnly({
         />
       </Section>
 
-      <Section title={m.label.chemicalExposure}>
+      <Section sectionKey="chemicalExposure" title={m.label.chemicalExposure}>
         <RoYesNo
           radioName="ro-chemical"
           legend=""
@@ -352,7 +355,7 @@ export function PatientFormReadOnly({
         />
       </Section>
 
-      <Section title={m.label.hospitalization}>
+      <Section sectionKey="hospitalization" title={m.label.hospitalization}>
         <RoYesNo
           radioName="ro-hospital-had"
           legend=""
@@ -367,118 +370,98 @@ export function PatientFormReadOnly({
         </div>
       </Section>
 
-      <Section title={m.section.medications}>
+      <Section sectionKey="medications" title={m.section.medications}>
         <p className="text-sm text-zinc-600">{m.label.medIntro}</p>
         <RoTextArea rows={2} value={data.medications.note} />
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[480px] border-collapse text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-violet-800">
-                <th className="pb-2 pr-2">{m.label.medName}</th>
-                <th className="pb-2 pr-2">{m.label.dose}</th>
-                <th className="pb-2">{m.label.frequency}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.medications.rows.map((row, index) => (
-                <tr key={`med-${index}`} className="border-t border-violet-100">
-                  <td className="py-2 pr-2">
-                    <RoInput value={row.name} />
-                  </td>
-                  <td className="py-2 pr-2">
-                    <RoInput value={row.dose} />
-                  </td>
-                  <td className="py-2">
-                    <RoInput value={row.frequency} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="space-y-4">
+          {data.medications.rows.map((row, index) => (
+            <div
+              key={`med-${index}`}
+              className="space-y-3 rounded-xl border border-violet-100 bg-violet-50/40 p-4"
+            >
+              <div>
+                <Label>{m.label.medName}</Label>
+                <RoInput value={row.name} />
+              </div>
+              <div>
+                <Label>{m.label.dose}</Label>
+                <RoInput value={row.dose} />
+              </div>
+              <div>
+                <Label>{m.label.frequency}</Label>
+                <RoInput value={row.frequency} />
+              </div>
+            </div>
+          ))}
         </div>
       </Section>
 
-      <Section title={m.section.allergies}>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[360px] border-collapse text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-violet-800">
-                <th className="pb-2 pr-2">{m.label.substance}</th>
-                <th className="pb-2">{m.label.reaction}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.allergies.rows.map((row, index) => (
-                <tr key={`all-${index}`} className="border-t border-violet-100">
-                  <td className="py-2 pr-2">
-                    <RoInput value={row.substance} />
-                  </td>
-                  <td className="py-2">
-                    <RoInput value={row.reaction} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <Section sectionKey="allergies" title={m.section.allergies}>
+        <div className="space-y-4">
+          {data.allergies.rows.map((row, index) => (
+            <div
+              key={`all-${index}`}
+              className="space-y-3 rounded-xl border border-violet-100 bg-violet-50/40 p-4"
+            >
+              <div>
+                <Label>{m.label.substance}</Label>
+                <RoInput value={row.substance} />
+              </div>
+              <div>
+                <Label>{m.label.reaction}</Label>
+                <RoInput value={row.reaction} />
+              </div>
+            </div>
+          ))}
         </div>
       </Section>
 
-      <Section title={m.section.diseases}>
+      <Section sectionKey="diseases" title={m.section.diseases}>
         <p className="text-sm text-zinc-600">{m.label.diseasesIntro}</p>
-        <div className="overflow-x-auto rounded-xl border border-violet-100">
-          <table className="w-full min-w-[640px] border-collapse text-sm">
-            <thead className="bg-violet-50/80">
-              <tr>
-                <th className="px-3 py-2 text-start font-semibold text-violet-950">
-                  {m.label.disease}
-                </th>
-                <th className="px-3 py-2 text-start font-semibold text-violet-950">
-                  {m.common.yes}
-                </th>
-                <th className="px-3 py-2 text-start font-semibold text-violet-950">
-                  {m.common.no}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {DISEASES.map((d) => {
-                const v = data.diseases[d.id] ?? "";
-                return (
-                  <tr key={d.id} className="border-t border-violet-100">
-                    <td className="px-3 py-2 text-zinc-800">
-                      {m.diseases[d.id] ?? d.label}
-                    </td>
-                    <td className="px-3 py-2">
-                      <input
-                        type="radio"
-                        name={`ro-dis-${d.id}`}
-                        checked={v === "evet"}
-                        readOnly
-                        disabled
-                        className="h-4 w-4 accent-violet-600"
-                        aria-label={`${m.diseases[d.id] ?? d.label} — ${m.common.yes}`}
-                      />
-                    </td>
-                    <td className="px-3 py-2">
-                      <input
-                        type="radio"
-                        name={`ro-dis-${d.id}`}
-                        checked={v === "hayir"}
-                        readOnly
-                        disabled
-                        className="h-4 w-4 accent-violet-600"
-                        aria-label={`${m.diseases[d.id] ?? d.label} — ${m.common.no}`}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="space-y-3">
+          {DISEASES.map((d) => {
+            const v = data.diseases[d.id] ?? "";
+            return (
+              <div
+                key={d.id}
+                className="rounded-xl border border-violet-100 bg-white px-3 py-3"
+              >
+                <p className="text-sm font-medium text-zinc-800">
+                  {m.diseases[d.id] ?? d.label}
+                </p>
+                <div className="mt-3 flex flex-col gap-2">
+                  <label className="flex items-center gap-2 text-sm text-zinc-700">
+                    <input
+                      type="radio"
+                      name={`ro-dis-${d.id}`}
+                      checked={v === "evet"}
+                      readOnly
+                      disabled
+                      className="h-4 w-4 shrink-0 accent-violet-600"
+                      aria-label={`${m.diseases[d.id] ?? d.label} — ${m.common.yes}`}
+                    />
+                    {m.common.yes}
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-zinc-700">
+                    <input
+                      type="radio"
+                      name={`ro-dis-${d.id}`}
+                      checked={v === "hayir"}
+                      readOnly
+                      disabled
+                      className="h-4 w-4 shrink-0 accent-violet-600"
+                      aria-label={`${m.diseases[d.id] ?? d.label} — ${m.common.no}`}
+                    />
+                    {m.common.no}
+                  </label>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </Section>
 
-      <Section title={m.label.smoking}>
+      <Section sectionKey="smoking" title={m.label.smoking}>
         <RoYesNo
           radioName="ro-smoking"
           legend=""
@@ -497,7 +480,7 @@ export function PatientFormReadOnly({
         </div>
       </Section>
 
-      <Section title={m.section.alcohol}>
+      <Section sectionKey="alcohol" title={m.section.alcohol}>
         <p className="text-sm font-medium text-zinc-900">
           {m.label.alcoholQuestion}
         </p>
@@ -529,7 +512,7 @@ export function PatientFormReadOnly({
         </div>
       </Section>
 
-      <Section title={m.section.drugs}>
+      <Section sectionKey="drugs" title={m.section.drugs}>
         <p className="text-sm text-zinc-600">{m.label.drugsQuestion}</p>
         <RoYesNo
           radioName="ro-drugs-used"
@@ -553,7 +536,7 @@ export function PatientFormReadOnly({
         />
       </Section>
 
-      <Section title={m.label.infectionRisk}>
+      <Section sectionKey="infectionRisk" title={m.label.infectionRisk}>
         <RoYesNo
           radioName="ro-infection"
           legend=""
@@ -564,7 +547,7 @@ export function PatientFormReadOnly({
         />
       </Section>
 
-      <Section title={m.label.dvt}>
+      <Section sectionKey="dvt" title={m.label.dvt}>
         <RoYesNo
           radioName="ro-dvt"
           legend=""
@@ -575,7 +558,7 @@ export function PatientFormReadOnly({
         />
       </Section>
 
-      <Section title={m.label.psychiatric}>
+      <Section sectionKey="psychiatric" title={m.label.psychiatric}>
         <RoYesNo
           radioName="ro-psych"
           legend=""
@@ -586,7 +569,7 @@ export function PatientFormReadOnly({
         />
       </Section>
 
-      <Section title={m.section.family}>
+      <Section sectionKey="family" title={m.section.family}>
         <p className="text-sm text-zinc-600">{m.label.familyIntro}</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {FAMILY_ITEMS.map((f) => (
@@ -611,7 +594,7 @@ export function PatientFormReadOnly({
         </div>
       </Section>
 
-      <Section title={m.section.currentProblems}>
+      <Section sectionKey="currentProblems" title={m.section.currentProblems}>
         <p className="text-sm text-zinc-600">{m.label.currentIntro}</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {CURRENT_PROBLEMS.map((p) => (
@@ -632,14 +615,14 @@ export function PatientFormReadOnly({
         </div>
       </Section>
 
-      <Section title={m.section.notes}>
+      <Section sectionKey="notes" title={m.section.notes}>
         <div>
           <Label>{m.label.extraNotes}</Label>
           <RoTextArea rows={4} value={data.extraNotes} />
         </div>
       </Section>
 
-      <Section title={m.section.file}>
+      <Section sectionKey="file" title={m.section.file}>
         {!attachmentPath ? (
           <p className="text-sm text-zinc-600">Ek dosya yüklenmemiş.</p>
         ) : !attachmentUrl ? (

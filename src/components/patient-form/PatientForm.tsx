@@ -158,24 +158,36 @@ export function PatientForm() {
 
   return (
     <div
-      className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#f3e8ff_0%,_#f7f2ff_45%,_#faf8ff_100%)] pb-16 text-zinc-900"
+      className="min-h-screen w-full min-w-0 max-w-full overflow-x-clip bg-[radial-gradient(ellipse_at_top,_#f3e8ff_0%,_#f7f2ff_45%,_#faf8ff_100%)] pb-16 text-zinc-900"
       dir={m.dir}
     >
       <header className="relative z-[100] overflow-visible border-b border-violet-200/40 bg-[#f7f2ff]/85 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-5 md:flex-row md:items-center md:justify-between">
-          <div className="flex min-w-0 flex-1 items-center justify-center md:justify-start">
+        <div className="mx-auto max-w-5xl px-4 py-5">
+          <div className="flex flex-col items-center gap-4 md:hidden">
             <BrandLogo variant="light" />
+            <div className="flex w-full min-w-0 flex-wrap items-center justify-center gap-3">
+              <span className="text-sm font-medium text-violet-900/80">
+                {m.meta.selectLang}
+              </span>
+              <LanguageSelect value={lang} onChange={setLang} />
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3 md:justify-end">
-            <span className="text-sm font-medium text-violet-900/80">
-              {m.meta.selectLang}
-            </span>
-            <LanguageSelect value={lang} onChange={setLang} />
+          <div className="hidden grid-cols-[1fr_auto_1fr] items-center gap-4 md:grid">
+            <div aria-hidden className="min-w-0" />
+            <div className="flex justify-center">
+              <BrandLogo variant="light" />
+            </div>
+            <div className="flex min-w-0 flex-wrap items-center justify-end gap-3">
+              <span className="text-sm font-medium text-violet-900/80">
+                {m.meta.selectLang}
+              </span>
+              <LanguageSelect value={lang} onChange={setLang} />
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="relative z-0 mx-auto max-w-5xl px-4 pt-10">
+      <main className="relative z-0 mx-auto min-w-0 max-w-5xl px-4 pt-10">
         <div className="mb-8 text-center md:text-left">
           <h1 className="font-serif text-3xl font-semibold tracking-tight text-violet-950 md:text-4xl">
             {m.meta.title}
@@ -195,7 +207,7 @@ export function PatientForm() {
         <form onSubmit={onSubmit} className="space-y-6">
           <input type="hidden" {...register("language")} />
 
-          <Section title={m.section.patient}>
+          <Section sectionKey="patient" title={m.section.patient}>
             <FieldGrid>
               <div>
                 <Label htmlFor="fullName">{m.label.fullName}</Label>
@@ -222,7 +234,7 @@ export function PatientForm() {
             </FieldGrid>
           </Section>
 
-          <Section title={m.section.emergency}>
+          <Section sectionKey="emergency" title={m.section.emergency}>
             <FieldGrid>
               <div>
                 <Label htmlFor="emName">{m.label.emFullName}</Label>
@@ -243,7 +255,7 @@ export function PatientForm() {
             </FieldGrid>
           </Section>
 
-          <Section title={m.section.bmi}>
+          <Section sectionKey="bmi" title={m.section.bmi}>
             <FieldGrid>
               <div>
                 <Label htmlFor="hcm">{m.label.heightCm}</Label>
@@ -269,13 +281,14 @@ export function PatientForm() {
                   }}
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <Label>{m.label.feetInch}</Label>
-                <div className="mt-1 flex gap-2">
+                <div className="mt-1 flex min-w-0 flex-col gap-2 sm:flex-row sm:gap-2">
                   <TextInput
                     placeholder={m.label.ft}
                     inputMode="decimal"
                     {...regHeightFt}
+                    className="min-w-0 flex-1"
                     onChange={(e) => {
                       regHeightFt.onChange(e);
                       const rawFt = e.target.value;
@@ -292,6 +305,7 @@ export function PatientForm() {
                     }}
                   />
                   <TextInput
+                    className="min-w-0 flex-1"
                     placeholder={m.label.inch}
                     inputMode="decimal"
                     {...regHeightIn}
@@ -361,7 +375,7 @@ export function PatientForm() {
             </FieldGrid>
           </Section>
 
-          <Section title={m.section.priorSurgery}>
+          <Section sectionKey="priorSurgery" title={m.section.priorSurgery}>
             <YesNoRadios
               register={register}
               name="priorSurgery.had"
@@ -374,47 +388,39 @@ export function PatientForm() {
               <Label htmlFor="psDet">{m.common.detailIfAny}</Label>
               <TextArea id="psDet" rows={3} {...register("priorSurgery.detail")} />
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[520px] border-collapse text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-violet-800">
-                    <th className="pb-2 pr-2">{m.label.type}</th>
-                    <th className="pb-2 pr-2">{m.label.reason}</th>
-                    <th className="pb-2 pr-2">{m.label.date}</th>
-                    <th className="w-14 pb-2 text-end align-bottom">
-                      <span className="sr-only">{m.common.removeRow}</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="align-top">
-                  {surgeryRows.fields.map((field, index) => (
-                    <tr key={field.id} className="border-t border-violet-100">
-                      <td className="py-2 pr-2">
-                        <TextInput
-                          {...register(`priorSurgery.rows.${index}.type` as const)}
-                        />
-                      </td>
-                      <td className="py-2 pr-2">
-                        <TextInput
-                          {...register(`priorSurgery.rows.${index}.reason` as const)}
-                        />
-                      </td>
-                      <td className="py-2 pr-2">
-                        <TextInput
-                          {...register(`priorSurgery.rows.${index}.date` as const)}
-                        />
-                      </td>
-                      <td className="py-2 text-end align-middle">
-                        <RowRemoveButton
-                          label={m.common.removeRow}
-                          disabled={surgeryRows.fields.length <= 1}
-                          onRemove={() => surgeryRows.remove(index)}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-4">
+              {surgeryRows.fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="space-y-3 rounded-xl border border-violet-100 bg-violet-50/40 p-4"
+                >
+                  <div>
+                    <Label>{m.label.type}</Label>
+                    <TextInput
+                      {...register(`priorSurgery.rows.${index}.type` as const)}
+                    />
+                  </div>
+                  <div>
+                    <Label>{m.label.reason}</Label>
+                    <TextInput
+                      {...register(`priorSurgery.rows.${index}.reason` as const)}
+                    />
+                  </div>
+                  <div>
+                    <Label>{m.label.date}</Label>
+                    <TextInput
+                      {...register(`priorSurgery.rows.${index}.date` as const)}
+                    />
+                  </div>
+                  <div className="flex justify-end pt-1">
+                    <RowRemoveButton
+                      label={m.common.removeRow}
+                      disabled={surgeryRows.fields.length <= 1}
+                      onRemove={() => surgeryRows.remove(index)}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
             <button
               type="button"
@@ -427,7 +433,7 @@ export function PatientForm() {
             </button>
           </Section>
 
-          <Section title={m.section.seriousInjury}>
+          <Section sectionKey="seriousInjury" title={m.section.seriousInjury}>
             <YesNoRadios
               register={register}
               name="seriousInjury.had"
@@ -442,7 +448,7 @@ export function PatientForm() {
             </div>
           </Section>
 
-          <Section title={m.label.bloodTransfusion}>
+          <Section sectionKey="bloodTransfusion" title={m.label.bloodTransfusion}>
             <YesNoRadios
               register={register}
               name="bloodTransfusion"
@@ -453,7 +459,7 @@ export function PatientForm() {
             />
           </Section>
 
-          <Section title={m.label.chemicalExposure}>
+          <Section sectionKey="chemicalExposure" title={m.label.chemicalExposure}>
             <YesNoRadios
               register={register}
               name="chemicalExposure"
@@ -464,7 +470,7 @@ export function PatientForm() {
             />
           </Section>
 
-          <Section title={m.label.hospitalization}>
+          <Section sectionKey="hospitalization" title={m.label.hospitalization}>
             <YesNoRadios
               register={register}
               name="hospitalNonSurgery.had"
@@ -485,50 +491,42 @@ export function PatientForm() {
             </div>
           </Section>
 
-          <Section title={m.section.medications}>
+          <Section sectionKey="medications" title={m.section.medications}>
             <p className="text-sm text-zinc-600">{m.label.medIntro}</p>
             <TextArea rows={2} {...register("medications.note")} />
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[520px] border-collapse text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-violet-800">
-                    <th className="pb-2 pr-2">{m.label.medName}</th>
-                    <th className="pb-2 pr-2">{m.label.dose}</th>
-                    <th className="pb-2 pr-2">{m.label.frequency}</th>
-                    <th className="w-14 pb-2 text-end align-bottom">
-                      <span className="sr-only">{m.common.removeRow}</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {medicationRows.fields.map((field, index) => (
-                    <tr key={field.id} className="border-t border-violet-100">
-                      <td className="py-2 pr-2">
-                        <TextInput
-                          {...register(`medications.rows.${index}.name` as const)}
-                        />
-                      </td>
-                      <td className="py-2 pr-2">
-                        <TextInput
-                          {...register(`medications.rows.${index}.dose` as const)}
-                        />
-                      </td>
-                      <td className="py-2 pr-2">
-                        <TextInput
-                          {...register(`medications.rows.${index}.frequency` as const)}
-                        />
-                      </td>
-                      <td className="py-2 text-end align-middle">
-                        <RowRemoveButton
-                          label={m.common.removeRow}
-                          disabled={medicationRows.fields.length <= 1}
-                          onRemove={() => medicationRows.remove(index)}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-4">
+              {medicationRows.fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="space-y-3 rounded-xl border border-violet-100 bg-violet-50/40 p-4"
+                >
+                  <div>
+                    <Label>{m.label.medName}</Label>
+                    <TextInput
+                      {...register(`medications.rows.${index}.name` as const)}
+                    />
+                  </div>
+                  <div>
+                    <Label>{m.label.dose}</Label>
+                    <TextInput
+                      {...register(`medications.rows.${index}.dose` as const)}
+                    />
+                  </div>
+                  <div>
+                    <Label>{m.label.frequency}</Label>
+                    <TextInput
+                      {...register(`medications.rows.${index}.frequency` as const)}
+                    />
+                  </div>
+                  <div className="flex justify-end pt-1">
+                    <RowRemoveButton
+                      label={m.common.removeRow}
+                      disabled={medicationRows.fields.length <= 1}
+                      onRemove={() => medicationRows.remove(index)}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
             <button
               type="button"
@@ -541,42 +539,34 @@ export function PatientForm() {
             </button>
           </Section>
 
-          <Section title={m.section.allergies}>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[400px] border-collapse text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-violet-800">
-                    <th className="pb-2 pr-2">{m.label.substance}</th>
-                    <th className="pb-2 pr-2">{m.label.reaction}</th>
-                    <th className="w-14 pb-2 text-end align-bottom">
-                      <span className="sr-only">{m.common.removeRow}</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allergyRows.fields.map((field, index) => (
-                    <tr key={field.id} className="border-t border-violet-100">
-                      <td className="py-2 pr-2">
-                        <TextInput
-                          {...register(`allergies.rows.${index}.substance` as const)}
-                        />
-                      </td>
-                      <td className="py-2 pr-2">
-                        <TextInput
-                          {...register(`allergies.rows.${index}.reaction` as const)}
-                        />
-                      </td>
-                      <td className="py-2 text-end align-middle">
-                        <RowRemoveButton
-                          label={m.common.removeRow}
-                          disabled={allergyRows.fields.length <= 1}
-                          onRemove={() => allergyRows.remove(index)}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <Section sectionKey="allergies" title={m.section.allergies}>
+            <div className="space-y-4">
+              {allergyRows.fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="space-y-3 rounded-xl border border-violet-100 bg-violet-50/40 p-4"
+                >
+                  <div>
+                    <Label>{m.label.substance}</Label>
+                    <TextInput
+                      {...register(`allergies.rows.${index}.substance` as const)}
+                    />
+                  </div>
+                  <div>
+                    <Label>{m.label.reaction}</Label>
+                    <TextInput
+                      {...register(`allergies.rows.${index}.reaction` as const)}
+                    />
+                  </div>
+                  <div className="flex justify-end pt-1">
+                    <RowRemoveButton
+                      label={m.common.removeRow}
+                      disabled={allergyRows.fields.length <= 1}
+                      onRemove={() => allergyRows.remove(index)}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
             <button
               type="button"
@@ -589,53 +579,43 @@ export function PatientForm() {
             </button>
           </Section>
 
-          <Section title={m.section.diseases}>
+          <Section sectionKey="diseases" title={m.section.diseases}>
             <p className="text-sm text-zinc-600">{m.label.diseasesIntro}</p>
-            <div className="overflow-x-auto rounded-xl border border-violet-100">
-              <table className="w-full min-w-[640px] border-collapse text-sm">
-                <thead className="bg-violet-50/80">
-                  <tr>
-                    <th className="px-3 py-2 text-start font-semibold text-violet-950">
-                      {m.label.disease}
-                    </th>
-                    <th className="px-3 py-2 text-start font-semibold text-violet-950">
+            <div className="space-y-3">
+              {DISEASES.map((d) => (
+                <div
+                  key={d.id}
+                  className="rounded-xl border border-violet-100 bg-white px-3 py-3"
+                >
+                  <p className="text-sm font-medium text-zinc-800">
+                    {m.diseases[d.id] ?? d.label}
+                  </p>
+                  <div className="mt-3 flex flex-col gap-2">
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-700">
+                      <input
+                        type="radio"
+                        value="evet"
+                        className="h-4 w-4 shrink-0 accent-violet-600"
+                        {...register(`diseases.${d.id}` as const)}
+                      />
                       {m.common.yes}
-                    </th>
-                    <th className="px-3 py-2 text-start font-semibold text-violet-950">
+                    </label>
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-700">
+                      <input
+                        type="radio"
+                        value="hayir"
+                        className="h-4 w-4 shrink-0 accent-violet-600"
+                        {...register(`diseases.${d.id}` as const)}
+                      />
                       {m.common.no}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {DISEASES.map((d) => (
-                    <tr key={d.id} className="border-t border-violet-100">
-                      <td className="px-3 py-2 text-zinc-800">
-                        {m.diseases[d.id] ?? d.label}
-                      </td>
-                      <td className="px-3 py-2">
-                        <input
-                          type="radio"
-                          value="evet"
-                          className="h-4 w-4 accent-violet-600"
-                          {...register(`diseases.${d.id}` as const)}
-                        />
-                      </td>
-                      <td className="px-3 py-2">
-                        <input
-                          type="radio"
-                          value="hayir"
-                          className="h-4 w-4 accent-violet-600"
-                          {...register(`diseases.${d.id}` as const)}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    </label>
+                  </div>
+                </div>
+              ))}
             </div>
           </Section>
 
-          <Section title={m.label.smoking}>
+          <Section sectionKey="smoking" title={m.label.smoking}>
             <YesNoRadios
               register={register}
               name="smoking"
@@ -654,7 +634,7 @@ export function PatientForm() {
             </div>
           </Section>
 
-          <Section title={m.section.alcohol}>
+          <Section sectionKey="alcohol" title={m.section.alcohol}>
             <p className="text-sm font-medium text-zinc-900">
               {m.label.alcoholQuestion}
             </p>
@@ -686,7 +666,7 @@ export function PatientForm() {
             </div>
           </Section>
 
-          <Section title={m.section.drugs}>
+          <Section sectionKey="drugs" title={m.section.drugs}>
             <p className="text-sm text-zinc-600">{m.label.drugsQuestion}</p>
             <YesNoRadios
               register={register}
@@ -709,7 +689,7 @@ export function PatientForm() {
             />
           </Section>
 
-          <Section title={m.label.infectionRisk}>
+          <Section sectionKey="infectionRisk" title={m.label.infectionRisk}>
             <YesNoRadios
               register={register}
               name="infectionRisk"
@@ -720,7 +700,7 @@ export function PatientForm() {
             />
           </Section>
 
-          <Section title={m.label.dvt}>
+          <Section sectionKey="dvt" title={m.label.dvt}>
             <YesNoRadios
               register={register}
               name="dvt"
@@ -731,7 +711,7 @@ export function PatientForm() {
             />
           </Section>
 
-          <Section title={m.label.psychiatric}>
+          <Section sectionKey="psychiatric" title={m.label.psychiatric}>
             <YesNoRadios
               register={register}
               name="psychiatric"
@@ -742,7 +722,7 @@ export function PatientForm() {
             />
           </Section>
 
-          <Section title={m.section.family}>
+          <Section sectionKey="family" title={m.section.family}>
             <p className="text-sm text-zinc-600">{m.label.familyIntro}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {FAMILY_ITEMS.map((f) => (
@@ -765,7 +745,7 @@ export function PatientForm() {
             </div>
           </Section>
 
-          <Section title={m.section.currentProblems}>
+          <Section sectionKey="currentProblems" title={m.section.currentProblems}>
             <p className="text-sm text-zinc-600">{m.label.currentIntro}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {CURRENT_PROBLEMS.map((p) => (
@@ -784,14 +764,14 @@ export function PatientForm() {
             </div>
           </Section>
 
-          <Section title={m.section.notes}>
+          <Section sectionKey="notes" title={m.section.notes}>
             <div>
               <Label>{m.label.extraNotes}</Label>
               <TextArea rows={4} {...register("extraNotes")} />
             </div>
           </Section>
 
-          <Section title={m.section.file}>
+          <Section sectionKey="file" title={m.section.file}>
             <Label htmlFor="fileup">{m.label.fileUpload}</Label>
             <input
               id="fileup"
