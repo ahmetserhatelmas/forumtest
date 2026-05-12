@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
+import { LanguageFlagIcon } from "@/components/LanguageFlagIcon";
 import { LANGUAGES, type LanguageCode } from "@/constants/languages";
 
 function useIsClient() {
@@ -93,7 +94,7 @@ export function LanguageSelect({
                 : "text-zinc-800"
             }`}
           >
-            <span className="text-lg leading-none">{l.flag}</span>
+            <LanguageFlagIcon code={l.code} />
             {l.label}
           </button>
         ))}
@@ -110,7 +111,7 @@ export function LanguageSelect({
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-2 rounded-full border border-violet-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:border-violet-300"
       >
-        <span className="text-lg leading-none">{current.flag}</span>
+        <LanguageFlagIcon code={current.code} />
         <span>{current.label}</span>
         <span className="text-violet-500" aria-hidden>
           ▾

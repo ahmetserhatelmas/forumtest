@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import "flag-icons/css/flag-icons.min.css";
 import "./globals.css";
 
 const sans = Inter({

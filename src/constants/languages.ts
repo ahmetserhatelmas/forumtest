@@ -11,22 +11,23 @@ export type LanguageCode =
   | "it"
   | "ro";
 
+/** ISO 3166-1 alpha-2 for flag-icons (SVG); avoids emoji flags missing on many Android devices. */
 export const LANGUAGES: {
   code: LanguageCode;
   label: string;
-  flag: string;
+  flagCountry: string;
 }[] = [
-  { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "tr", label: "Türkçe", flag: "🇹🇷" },
-  { code: "bg", label: "Bulgarian", flag: "🇧🇬" },
-  { code: "es", label: "Spanish", flag: "🇪🇸" },
-  { code: "pt", label: "Portuguese", flag: "🇵🇹" },
-  { code: "ar", label: "عربي", flag: "🇸🇦" },
-  { code: "ru", label: "Русский", flag: "🇷🇺" },
-  { code: "fr", label: "Français", flag: "🇫🇷" },
-  { code: "de", label: "Deutsch", flag: "🇩🇪" },
-  { code: "it", label: "Italiano", flag: "🇮🇹" },
-  { code: "ro", label: "Română", flag: "🇷🇴" },
+  { code: "en", label: "English", flagCountry: "gb" },
+  { code: "tr", label: "Türkçe", flagCountry: "tr" },
+  { code: "bg", label: "Bulgarian", flagCountry: "bg" },
+  { code: "es", label: "Spanish", flagCountry: "es" },
+  { code: "pt", label: "Portuguese", flagCountry: "pt" },
+  { code: "ar", label: "عربي", flagCountry: "sa" },
+  { code: "ru", label: "Русский", flagCountry: "ru" },
+  { code: "fr", label: "Français", flagCountry: "fr" },
+  { code: "de", label: "Deutsch", flagCountry: "de" },
+  { code: "it", label: "Italiano", flagCountry: "it" },
+  { code: "ro", label: "Română", flagCountry: "ro" },
 ];
 
 export function languageLabel(code: string): string {

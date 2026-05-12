@@ -147,7 +147,7 @@ export default async function AdminSubmissionsPage({
               <option value="">Tüm diller</option>
               {LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
-                  {l.flag} {l.label}
+                  {l.flagCountry.toUpperCase()} · {l.label}
                 </option>
               ))}
             </select>
