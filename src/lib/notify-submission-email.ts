@@ -21,11 +21,11 @@ export async function notifyNewSubmission(params: {
   fullName: string | null;
   language: string;
   form: PatientFormData;
-  attachment?: {
+  attachments?: {
     filename: string;
     contentBase64: string;
     contentType: string;
-  } | null;
+  }[];
 }): Promise<void> {
   try {
     const apiKey = process.env.RESEND_API_KEY?.trim();
@@ -50,14 +50,16 @@ export async function notifyNewSubmission(params: {
     const name = params.fullName?.trim() || "—";
     const subject = `Yeni başvuru: ${name} (${params.language})`;
 
+    const attList = params.attachments?.filter((a) => a.contentBase64) ?? [];
+    const attachmentFileNames = attList.map((a) => a.filename);
+
     const { html, text } = buildSubmissionEmailBody(params.form, {
       id: params.id,
       fullName: params.fullName,
       language: params.language,
       adminUrl,
       adminPath,
-      hasAttachment: Boolean(params.attachment),
-      attachmentFileName: params.attachment?.filename ?? null,
+      attachmentFileNames,
     });
 
     const payload: Record<string, unknown> = {
@@ -68,16 +70,11 @@ export async function notifyNewSubmission(params: {
       text,
     };
 
-    if (params.attachment) {
-      payload.attachments = [
-        {
-          filename: safeAttachmentFilename(
-            params.attachment.filename,
-            "dat",
-          ),
-          content: params.attachment.contentBase64,
-        },
-      ];
+    if (attList.length > 0) {
+      payload.attachments = attList.map((a) => ({
+        filename: safeAttachmentFilename(a.filename, "dat"),
+        content: a.contentBase64,
+      }));
     }
 
     const res = await fetch("https://api.resend.com/emails", {

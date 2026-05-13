@@ -29,13 +29,33 @@ export default async function AdminSubmissionDetailPage({
   const submissionLang = (data.language as LanguageCode) || "tr";
   const formData = normalizePatientFormData(data.form_data, submissionLang);
 
-  let fileUrl: string | null = null;
-  if (data.attachment_path) {
-    const { data: signed } = await db.storage
-      .from("form-attachments")
-      .createSignedUrl(data.attachment_path, 3600);
-    fileUrl = signed?.signedUrl ?? null;
-  }
+  const pathsFromRow: string[] = (() => {
+    const multi = data.attachment_paths;
+    if (Array.isArray(multi) && multi.length > 0) {
+      return multi.filter((p): p is string => typeof p === "string" && p.trim() !== "");
+    }
+    if (typeof data.attachment_path === "string" && data.attachment_path.trim() !== "") {
+      return [data.attachment_path.trim()];
+    }
+    return [];
+  })();
+
+  const signedResults = await Promise.all(
+    pathsFromRow.map(async (path) => {
+      const { data: signed } = await db.storage
+        .from("form-attachments")
+        .createSignedUrl(path, 3600);
+      return { path, url: signed?.signedUrl ?? null };
+    }),
+  );
+
+  const fileAttachments = signedResults
+    .filter((x): x is { path: string; url: string } => Boolean(x.url))
+    .map((x) => ({ path: x.path, url: x.url! }));
+
+  const brokenAttachmentPaths = signedResults
+    .filter((x) => !x.url)
+    .map((x) => x.path);
 
   return (
     <div className="min-w-0 max-w-full space-y-6 overflow-x-clip">
@@ -83,8 +103,8 @@ export default async function AdminSubmissionDetailPage({
       <div className="rounded-2xl border border-violet-100 bg-[radial-gradient(ellipse_at_top,_#f3e8ff_0%,_#f7f2ff_45%,_#faf8ff_100%)] p-4 shadow-sm sm:p-6">
         <PatientFormReadOnly
           data={formData}
-          attachmentUrl={fileUrl}
-          attachmentPath={data.attachment_path}
+          attachments={fileAttachments}
+          brokenAttachmentPaths={brokenAttachmentPaths}
         />
       </div>
     </div>

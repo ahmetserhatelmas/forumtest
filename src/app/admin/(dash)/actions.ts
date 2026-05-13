@@ -27,14 +27,25 @@ export async function deleteSubmission(id: string): Promise<{ ok: boolean }> {
   const db = createServiceClient();
   const { data: row } = await db
     .from("submissions")
-    .select("attachment_path")
+    .select("attachment_path, attachment_paths")
     .eq("id", idTrim)
     .maybeSingle();
 
-  if (row?.attachment_path) {
+  const pathsToRemove = new Set<string>();
+  if (row?.attachment_path && String(row.attachment_path).trim()) {
+    pathsToRemove.add(String(row.attachment_path).trim());
+  }
+  const arr = row?.attachment_paths;
+  if (Array.isArray(arr)) {
+    for (const p of arr) {
+      if (typeof p === "string" && p.trim()) pathsToRemove.add(p.trim());
+    }
+  }
+
+  if (pathsToRemove.size > 0) {
     const { error: rmErr } = await db.storage
       .from("form-attachments")
-      .remove([row.attachment_path]);
+      .remove([...pathsToRemove]);
     if (rmErr) {
       console.error("Storage silme:", rmErr);
     }

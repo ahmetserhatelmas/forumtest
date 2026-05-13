@@ -47,8 +47,7 @@ export function buildSubmissionEmailBody(
     language: string;
     adminUrl: string;
     adminPath: string;
-    hasAttachment: boolean;
-    attachmentFileName: string | null;
+    attachmentFileNames: string[];
   },
 ): { html: string; text: string } {
   const m = getPatientFormMessages(form.language);
@@ -329,16 +328,22 @@ export function buildSubmissionEmailBody(
     sectionHtml(m.section.notes, tableRows(rowHtml(m.label.extraNotes, form.extraNotes))),
   );
 
+  const attNames = meta.attachmentFileNames.filter(Boolean);
+  const hasAtt = attNames.length > 0;
   pushSec(m.section.file, [
-    meta.hasAttachment ? `Ek: ${meta.attachmentFileName || "dosya"}` : "Ek dosya yüklenmemiş.",
+    hasAtt ? `Ek: ${attNames.join(", ")}` : "Ek dosya yüklenmemiş.",
   ]);
-  const fileInner = meta.hasAttachment
+  const fileInner = hasAtt
     ? (() => {
-        const fn = meta.attachmentFileName || "ek";
+        const list = attNames.map((fn) => `<code style="font-size:12px;">${esc(fn)}</code>`).join(", ");
         const tail = meta.adminUrl
           ? ` veya <a href="${esc(meta.adminUrl)}">panelde açın</a>.`
           : ` Panele doğrudan link için sunucu ortamında <code>NEXT_PUBLIC_SITE_URL</code> tanımlayın.`;
-        return `<p style="margin:0;font-size:13px;line-height:1.6;">Dosya bu e-postanın <strong>ekinde</strong> (<code style="font-size:12px;">${esc(fn)}</code>). E-posta istemcilerinde PDF paneldeki gibi gömülü önizlenmez; eki indirip açın.${tail}</p>`;
+        const noun =
+          attNames.length > 1
+            ? "Dosyalar bu e-postanın <strong>eklerinde</strong>"
+            : "Dosya bu e-postanın <strong>ekinde</strong>";
+        return `<p style="margin:0;font-size:13px;line-height:1.6;">${noun} (${list}). E-posta istemcilerinde PDF paneldeki gibi gömülü önizlenmez; eki indirip açın.${tail}</p>`;
       })()
     : `<p style="margin:0;font-size:13px;color:#71717a;">${esc("Ek dosya yüklenmemiş.")}</p>`;
   htmlParts.push(sectionHtml(m.section.file, fileInner));

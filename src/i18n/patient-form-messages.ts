@@ -26,6 +26,7 @@ export type PatientFormMessages = {
     submitting: string;
     addRow: string;
     removeRow: string;
+    removeFile: string;
   };
   status: {
     thanksTitle: string;
@@ -104,6 +105,8 @@ export type PatientFormMessages = {
     currentIntro: string;
     extraNotes: string;
     fileUpload: string;
+    /** Görünür “dosya seç” düğmesi (input sr-only) */
+    pickFiles: string;
   };
   diseases: Record<string, string>;
   family: Record<string, string>;
@@ -141,6 +144,7 @@ const tr: PatientFormMessages = {
     submitting: "Gönderiliyor…",
     addRow: "Satır ekle",
     removeRow: "Satırı sil",
+    removeFile: "Kaldır",
   },
   status: {
     thanksTitle: "Teşekkürler.",
@@ -228,7 +232,8 @@ const tr: PatientFormMessages = {
       "Lütfen şu anda aşağıdaki sorunlardan herhangi birine sahipseniz belirtiniz.",
     extraNotes:
       "Varsa bizimle paylaşmak istediğiniz ek notlarınızı yazınız",
-    fileUpload: "Varsa dosya yükleyiniz",
+    fileUpload: "İsterseniz bir veya birden fazla dosya seçebilirsiniz",
+    pickFiles: "Dosya ekle",
   },
   diseases: diseases({
     anemi: "Anemi",
@@ -311,6 +316,7 @@ const en: PatientFormMessages = {
     submitting: "Sending…",
     addRow: "Add row",
     removeRow: "Remove row",
+    removeFile: "Remove",
   },
   status: {
     thanksTitle: "Thank you.",
@@ -396,7 +402,8 @@ const en: PatientFormMessages = {
     currentIntro:
       "Please check any symptoms you currently experience.",
     extraNotes: "Any additional notes you would like to share",
-    fileUpload: "Upload a file if needed",
+    fileUpload: "Upload one or more files if needed",
+    pickFiles: "Add files",
   },
   diseases: diseases({
     anemi: "Anemia",
@@ -582,7 +589,7 @@ const bg = cloneFromEn({
     other: "Друго",
     currentIntro: "Отбележете настоящите симптоми, ако имате.",
     extraNotes: "Допълнителни бележки",
-    fileUpload: "Качете файл при необходимост",
+    fileUpload: "Качете един или повече файлове при необходимост",
   },
   diseases: diseases(checklistBg.diseases),
   family: family(checklistBg.family),
@@ -684,7 +691,7 @@ const es = cloneFromEn({
     other: "Otro",
     currentIntro: "Marque los síntomas que tenga actualmente.",
     extraNotes: "Notas adicionales que desee compartir",
-    fileUpload: "Suba un archivo si lo necesita",
+    fileUpload: "Suba uno o más archivos si lo necesita",
   },
   diseases: diseases(checklistEs.diseases),
   family: family(checklistEs.family),
@@ -786,7 +793,7 @@ const pt = cloneFromEn({
     other: "Outro",
     currentIntro: "Assinale sintomas que tenha atualmente.",
     extraNotes: "Notas adicionais que queira partilhar",
-    fileUpload: "Carregue um ficheiro se necessário",
+    fileUpload: "Carregue um ou mais ficheiros se necessário",
   },
   diseases: diseases(checklistPt.diseases),
   family: family(checklistPt.family),
@@ -888,7 +895,7 @@ const fr = cloneFromEn({
     other: "Autre",
     currentIntro: "Cochez les symptômes actuels.",
     extraNotes: "Notes supplémentaires",
-    fileUpload: "Téléversez un fichier si besoin",
+    fileUpload: "Téléversez un ou plusieurs fichiers si besoin",
   },
   diseases: diseases(checklistFr.diseases),
   family: family(checklistFr.family),
@@ -990,7 +997,7 @@ const de = cloneFromEn({
     other: "Sonstiges",
     currentIntro: "Aktuelle Symptome ankreuzen.",
     extraNotes: "Weitere Anmerkungen",
-    fileUpload: "Datei hochladen (optional)",
+    fileUpload: "Optional eine oder mehrere Dateien hochladen",
   },
   diseases: diseases(checklistDe.diseases),
   family: family(checklistDe.family),
@@ -1092,7 +1099,7 @@ const it = cloneFromEn({
     other: "Altro",
     currentIntro: "Segna i sintomi attuali.",
     extraNotes: "Note aggiuntive",
-    fileUpload: "Carica un file se necessario",
+    fileUpload: "Carica uno o più file se necessario",
   },
   diseases: diseases(checklistIt.diseases),
   family: family(checklistIt.family),
@@ -1194,7 +1201,7 @@ const ro = cloneFromEn({
     other: "Altele",
     currentIntro: "Bifați simptomele actuale.",
     extraNotes: "Note suplimentare",
-    fileUpload: "Încărcați un fișier dacă e nevoie",
+    fileUpload: "Încărcați unul sau mai multe fișiere dacă e nevoie",
   },
   diseases: diseases(checklistRo.diseases),
   family: family(checklistRo.family),
@@ -1297,7 +1304,7 @@ const ru = cloneFromEn({
     other: "Другое",
     currentIntro: "Отметьте текущие симптомы.",
     extraNotes: "Дополнительные комментарии",
-    fileUpload: "Загрузите файл при необходимости",
+    fileUpload: "Загрузите один или несколько файлов при необходимости",
   },
   diseases: diseases({
     anemi: "Анемия",
@@ -1372,6 +1379,7 @@ const ar: PatientFormMessages = {
     selectLang: "اختر اللغة",
   },
   common: {
+    ...en.common,
     yes: "نعم",
     no: "لا",
     required: "حقل مطلوب",
@@ -1381,6 +1389,7 @@ const ar: PatientFormMessages = {
     submitting: "جارٍ الإرسال…",
     addRow: "إضافة صف",
     removeRow: "حذف الصف",
+    removeFile: "إزالة",
   },
   status: {
     thanksTitle: "شكرًا لك.",
@@ -1463,7 +1472,8 @@ const ar: PatientFormMessages = {
     other: "أخرى",
     currentIntro: "حدد الأعراض الحالية إن وُجدت.",
     extraNotes: "ملاحظات إضافية ترغب بمشاركتها",
-    fileUpload: "ارفع ملفًا إذا لزم",
+    fileUpload: "ارفع ملفًا أو أكثر إذا لزم",
+    pickFiles: "إضافة ملفات",
   },
   diseases: diseases({
     anemi: "فقر الدم",

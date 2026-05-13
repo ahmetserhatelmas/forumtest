@@ -17,7 +17,7 @@ export function Section({
 
   return (
     <section
-      className={`min-w-0 max-w-full overflow-x-clip rounded-2xl border border-violet-100 bg-white/90 p-4 shadow-sm shadow-violet-100/80 backdrop-blur-sm sm:p-6 ${className}`}
+      className={`min-w-0 max-w-full overflow-x-visible rounded-2xl border border-violet-100 bg-white/90 p-4 shadow-sm shadow-violet-100/80 backdrop-blur-sm sm:p-6 ${className}`}
     >
       <h2 className="flex items-center gap-3 font-serif text-xl font-semibold tracking-tight text-violet-950 md:text-2xl">
         {Icon ? (

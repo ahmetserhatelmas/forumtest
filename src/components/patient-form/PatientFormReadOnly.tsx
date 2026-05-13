@@ -160,25 +160,25 @@ function RoYesNo({
         <legend className="sr-only">{`${groupLabel} — ${yesLabel} / ${noLabel}`}</legend>
       )}
       <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-        <label className="inline-flex min-w-0 items-center gap-2 text-sm text-zinc-700">
+        <label className="inline-flex items-center gap-2 text-sm text-zinc-700">
           <input
             type="radio"
             name={radioName}
             checked={value === "evet"}
             readOnly
             disabled
-            className="h-4 w-4 accent-violet-600"
+            className="h-4 w-4 shrink-0 accent-violet-600"
           />
           {yesLabel}
         </label>
-        <label className="inline-flex min-w-0 items-center gap-2 text-sm text-zinc-700">
+        <label className="inline-flex items-center gap-2 text-sm text-zinc-700">
           <input
             type="radio"
             name={radioName}
             checked={value === "hayir"}
             readOnly
             disabled
-            className="h-4 w-4 accent-violet-600"
+            className="h-4 w-4 shrink-0 accent-violet-600"
           />
           {noLabel}
         </label>
@@ -189,13 +189,25 @@ function RoYesNo({
 
 export function PatientFormReadOnly({
   data,
+  attachments,
   attachmentUrl,
   attachmentPath,
+  brokenAttachmentPaths,
 }: {
   data: PatientFormData;
+  /** İmzalı URL + storage yolu çiftleri; verilirse önceliklidir */
+  attachments?: { url: string; path: string }[] | null;
   attachmentUrl?: string | null;
   attachmentPath?: string | null;
+  /** İmzalı URL üretilemeyen depo yolları (admin önizlemesi) */
+  brokenAttachmentPaths?: string[] | null;
 }) {
+  const fileAttachments =
+    attachments != null
+      ? attachments.filter((a) => Boolean(a.url?.trim() && a.path?.trim()))
+      : attachmentUrl?.trim() && attachmentPath?.trim()
+        ? [{ url: attachmentUrl, path: attachmentPath }]
+        : [];
   const m = getPatientFormMessages(data.language);
 
   return (
@@ -623,20 +635,30 @@ export function PatientFormReadOnly({
       </Section>
 
       <Section sectionKey="file" title={m.section.file}>
-        {!attachmentPath ? (
-          <p className="text-sm text-zinc-600">Ek dosya yüklenmemiş.</p>
-        ) : !attachmentUrl ? (
-          <p className="text-sm text-amber-800">
-            Ek dosya kayıtlı ancak önizleme bağlantısı oluşturulamadı. Lütfen
-            sayfayı yenileyin.
+        {brokenAttachmentPaths && brokenAttachmentPaths.length > 0 ? (
+          <p className="mb-3 text-sm text-amber-800">
+            {brokenAttachmentPaths.length} ek için önizleme bağlantısı oluşturulamadı.
+            Sayfayı yenileyin; devam ederse depolama izinlerini kontrol edin.
           </p>
-        ) : (
-          <AttachmentPreview
-            url={attachmentUrl}
-            path={attachmentPath}
-            fileSectionTitle={m.section.file}
-          />
-        )}
+        ) : null}
+        {fileAttachments.length > 0 ? (
+          <div className="space-y-6">
+            {fileAttachments.map((a, idx) => (
+              <div
+                key={`${a.path}-${idx}`}
+                className="rounded-xl border border-violet-100 bg-white/80 p-3 shadow-sm"
+              >
+                <AttachmentPreview
+                  url={a.url}
+                  path={a.path}
+                  fileSectionTitle={m.section.file}
+                />
+              </div>
+            ))}
+          </div>
+        ) : !brokenAttachmentPaths?.length ? (
+          <p className="text-sm text-zinc-600">Ek dosya yüklenmemiş.</p>
+        ) : null}
       </Section>
     </div>
   );

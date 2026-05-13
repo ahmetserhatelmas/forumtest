@@ -33,11 +33,6 @@ export async function submitPatientForm(formData: FormData): Promise<SubmitResul
 
     const supabase = createServiceClient();
     const fullName = form.patient.fullName?.trim() || null;
-    let mailAttachment: {
-      filename: string;
-      contentBase64: string;
-      contentType: string;
-    } | null = null;
 
     const { data: row, error: insertError } = await supabase
       .from("submissions")
@@ -46,6 +41,7 @@ export async function submitPatientForm(formData: FormData): Promise<SubmitResul
         full_name: fullName,
         form_data: form as unknown as Record<string, unknown>,
         attachment_path: null,
+        attachment_paths: null,
       })
       .select("id")
       .single();
@@ -55,10 +51,29 @@ export async function submitPatientForm(formData: FormData): Promise<SubmitResul
       return { ok: false, code: "insertFailed" };
     }
 
-    const file = formData.get("file");
-    if (file instanceof File && file.size > 0) {
+    const MAX_FILES = 20;
+    const rawFiles = formData.getAll("files");
+    const files = rawFiles
+      .filter((x): x is File => x instanceof File && x.size > 0)
+      .slice(0, MAX_FILES);
+
+    const uploadedPaths: string[] = [];
+    const mailAttachments: {
+      filename: string;
+      contentBase64: string;
+      contentType: string;
+    }[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       const ext = file.name.split(".").pop()?.slice(0, 8) || "dat";
-      const path = `${row.id}/upload.${ext}`;
+      const base =
+        file.name
+          .replace(/[/\\]/g, "_")
+          .replace(/\.[^/.]+$/i, "")
+          .trim()
+          .slice(0, 80) || `file${i}`;
+      const path = `${row.id}/${i}_${base.replace(/[^\w.-]+/g, "_")}.${ext}`;
       const buffer = Buffer.from(await file.arrayBuffer());
       const { error: upErr } = await supabase.storage
         .from("form-attachments")
@@ -70,18 +85,25 @@ export async function submitPatientForm(formData: FormData): Promise<SubmitResul
         console.error(upErr);
         return { ok: false, code: "uploadFailed" };
       }
-      await supabase
-        .from("submissions")
-        .update({ attachment_path: path })
-        .eq("id", row.id);
+      uploadedPaths.push(path);
       const safeName =
         file.name.replace(/[/\\]/g, "_").trim().slice(0, 120) ||
         `upload.${ext}`;
-      mailAttachment = {
+      mailAttachments.push({
         filename: safeName,
         contentBase64: buffer.toString("base64"),
         contentType: file.type || "application/octet-stream",
-      };
+      });
+    }
+
+    if (uploadedPaths.length > 0) {
+      await supabase
+        .from("submissions")
+        .update({
+          attachment_paths: uploadedPaths,
+          attachment_path: uploadedPaths[0] ?? null,
+        })
+        .eq("id", row.id);
     }
 
     await notifyNewSubmission({
@@ -89,7 +111,7 @@ export async function submitPatientForm(formData: FormData): Promise<SubmitResul
       fullName: fullName,
       language,
       form,
-      attachment: mailAttachment,
+      attachments: mailAttachments.length > 0 ? mailAttachments : undefined,
     });
 
     return { ok: true, id: row.id };

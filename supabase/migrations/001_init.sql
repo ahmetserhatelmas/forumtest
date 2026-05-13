@@ -8,7 +8,8 @@ create table if not exists public.submissions (
   language text not null,
   full_name text,
   form_data jsonb not null default '{}'::jsonb,
-  attachment_path text
+  attachment_path text,
+  attachment_paths text[]
 );
 
 create index if not exists submissions_created_at_idx on public.submissions (created_at desc);

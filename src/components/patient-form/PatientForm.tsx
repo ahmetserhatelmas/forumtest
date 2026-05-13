@@ -38,6 +38,14 @@ function parseNum(s: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+function sameFile(a: File, b: File): boolean {
+  return (
+    a.name === b.name && a.size === b.size && a.lastModified === b.lastModified
+  );
+}
+
+const MAX_FORM_FILES = 20;
+
 function RowRemoveButton({
   label,
   disabled,
@@ -77,7 +85,7 @@ function RowRemoveButton({
 
 export function PatientForm() {
   const [lang, setLang] = useState<LanguageCode>("tr");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">(
     "idle",
   );
@@ -144,12 +152,12 @@ export function PatientForm() {
     setErrorMsg("");
     const fd = new FormData();
     fd.append("payload", JSON.stringify({ language: values.language, form: values }));
-    if (file) fd.append("file", file);
+    files.forEach((f) => fd.append("files", f));
     const res = await submitPatientForm(fd);
     if (res.ok) {
       setStatus("done");
       reset(defaultPatientForm(lang));
-      setFile(null);
+      setFiles([]);
     } else {
       setStatus("error");
       setErrorMsg(m.errors[res.code]);
@@ -773,12 +781,58 @@ export function PatientForm() {
 
           <Section sectionKey="file" title={m.section.file}>
             <Label htmlFor="fileup">{m.label.fileUpload}</Label>
-            <input
-              id="fileup"
-              type="file"
-              className="mt-2 block w-full text-sm text-zinc-700 file:mr-4 file:rounded-full file:border-0 file:bg-violet-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-violet-700"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+              <input
+                id="fileup"
+                type="file"
+                multiple
+                className="sr-only"
+                onChange={(e) => {
+                  const picked = Array.from(e.target.files ?? []);
+                  e.target.value = "";
+                  if (picked.length === 0) return;
+                  setFiles((prev) => {
+                    const next = [...prev];
+                    for (const f of picked) {
+                      if (next.some((x) => sameFile(x, f))) continue;
+                      next.push(f);
+                      if (next.length >= MAX_FORM_FILES) break;
+                    }
+                    return next;
+                  });
+                }}
+              />
+              <label
+                htmlFor="fileup"
+                className="inline-flex w-fit cursor-pointer shrink-0 items-center justify-center rounded-full bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700"
+              >
+                {m.label.pickFiles}
+              </label>
+              {files.length > 0 ? (
+                <ul className="min-w-0 flex-1 space-y-2 text-sm text-zinc-700">
+                  {files.map((f, i) => (
+                    <li
+                      key={`${f.name}-${f.size}-${f.lastModified}-${i}`}
+                      className="flex items-center gap-2 rounded-lg border border-violet-100 bg-violet-50/50 px-3 py-2"
+                    >
+                      <span className="min-w-0 flex-1 truncate" title={f.name}>
+                        {f.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFiles((prev) => prev.filter((_, j) => j !== i))
+                        }
+                        className="shrink-0 rounded-lg border border-violet-200 bg-white px-2.5 py-1 text-xs font-semibold text-violet-800 transition hover:border-red-200 hover:bg-red-50 hover:text-red-800"
+                        aria-label={`${m.common.removeFile}: ${f.name}`}
+                      >
+                        {m.common.removeFile}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
           </Section>
 
           <div className="space-y-4">
