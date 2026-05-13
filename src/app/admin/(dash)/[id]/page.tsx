@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { PatientFormReadOnly } from "@/components/patient-form/PatientFormReadOnly";
 import type { LanguageCode } from "@/constants/languages";
 import { languageLabel } from "@/constants/languages";
-import { createClient } from "@/lib/supabase/server";
 import { normalizePatientFormData } from "@/lib/normalize-patient-form-data";
+import { requireAdminService } from "@/lib/require-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +14,9 @@ export default async function AdminSubmissionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
+  const { db } = await requireAdminService();
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("submissions")
     .select("*")
     .eq("id", id)
@@ -31,7 +31,7 @@ export default async function AdminSubmissionDetailPage({
 
   let fileUrl: string | null = null;
   if (data.attachment_path) {
-    const { data: signed } = await supabase.storage
+    const { data: signed } = await db.storage
       .from("form-attachments")
       .createSignedUrl(data.attachment_path, 3600);
     fileUrl = signed?.signedUrl ?? null;

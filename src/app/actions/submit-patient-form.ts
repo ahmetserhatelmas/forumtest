@@ -1,5 +1,6 @@
 "use server";
 
+import { notifyNewSubmission } from "@/lib/notify-submission-email";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { PatientFormData } from "@/types/patient-form";
 import type { LanguageCode } from "@/constants/languages";
@@ -32,6 +33,11 @@ export async function submitPatientForm(formData: FormData): Promise<SubmitResul
 
     const supabase = createServiceClient();
     const fullName = form.patient.fullName?.trim() || null;
+    let mailAttachment: {
+      filename: string;
+      contentBase64: string;
+      contentType: string;
+    } | null = null;
 
     const { data: row, error: insertError } = await supabase
       .from("submissions")
@@ -68,7 +74,23 @@ export async function submitPatientForm(formData: FormData): Promise<SubmitResul
         .from("submissions")
         .update({ attachment_path: path })
         .eq("id", row.id);
+      const safeName =
+        file.name.replace(/[/\\]/g, "_").trim().slice(0, 120) ||
+        `upload.${ext}`;
+      mailAttachment = {
+        filename: safeName,
+        contentBase64: buffer.toString("base64"),
+        contentType: file.type || "application/octet-stream",
+      };
     }
+
+    await notifyNewSubmission({
+      id: row.id,
+      fullName: fullName,
+      language,
+      form,
+      attachment: mailAttachment,
+    });
 
     return { ok: true, id: row.id };
   } catch (e) {

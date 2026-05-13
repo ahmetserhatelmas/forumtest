@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { LANGUAGES, languageLabel } from "@/constants/languages";
+import { Suspense } from "react";
+import { AdminDeleteButton } from "@/app/admin/(dash)/AdminDeleteButton";
+import { AdminListFilters } from "@/app/admin/(dash)/AdminListFilters";
+import { languageLabel } from "@/constants/languages";
+import { requireAdminService } from "@/lib/require-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -39,8 +42,8 @@ export default async function AdminSubmissionsPage({
   const dateTo = sp.date_to?.trim() || "";
   const nameQ = sp.name?.trim() || "";
 
-  const supabase = await createClient();
-  let query = supabase
+  const { db } = await requireAdminService();
+  let query = db
     .from("submissions")
     .select("id, created_at, language, full_name")
     .order("created_at", { ascending: false });
@@ -67,10 +70,6 @@ export default async function AdminSubmissionsPage({
 
   const rows = (data ?? []) as Row[];
 
-  const hasFilters = Boolean(
-    filterLang || dateFrom || dateTo || nameQ.length > 0,
-  );
-
   return (
     <div className="space-y-6">
       <div>
@@ -83,93 +82,13 @@ export default async function AdminSubmissionsPage({
         </p>
       </div>
 
-      <form
-        method="get"
-        className="rounded-2xl border border-violet-100 bg-white p-4 shadow-sm sm:p-5"
+      <Suspense
+        fallback={
+          <div className="h-48 animate-pulse rounded-2xl border border-violet-100 bg-violet-50/40" />
+        }
       >
-        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-violet-800">
-          Filtreler
-        </p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
-          <div>
-            <label
-              htmlFor="date_from"
-              className="block text-sm font-medium text-zinc-800"
-            >
-              Başlangıç tarihi
-            </label>
-            <input
-              id="date_from"
-              name="date_from"
-              type="date"
-              defaultValue={dateFrom}
-              className="mt-1 w-full rounded-xl border border-violet-200 bg-white px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-200"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="date_to"
-              className="block text-sm font-medium text-zinc-800"
-            >
-              Bitiş tarihi
-            </label>
-            <input
-              id="date_to"
-              name="date_to"
-              type="date"
-              defaultValue={dateTo}
-              className="mt-1 w-full rounded-xl border border-violet-200 bg-white px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-200"
-            />
-          </div>
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-zinc-800">
-              Hasta adı
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="search"
-              placeholder="İsimde ara…"
-              defaultValue={nameQ}
-              className="mt-1 w-full rounded-xl border border-violet-200 bg-white px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-200"
-            />
-          </div>
-          <div>
-            <label htmlFor="lang" className="block text-sm font-medium text-zinc-800">
-              Form dili
-            </label>
-            <select
-              id="lang"
-              name="lang"
-              defaultValue={filterLang}
-              className="mt-1 w-full rounded-xl border border-violet-200 bg-white px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-200"
-            >
-              <option value="">Tüm diller</option>
-              {LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code}>
-                  {l.flagCountry.toUpperCase()} · {l.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button
-            type="submit"
-            className="rounded-full bg-violet-600 px-5 py-2 text-sm font-semibold text-white hover:bg-violet-700"
-          >
-            Filtrele
-          </button>
-          {hasFilters ? (
-            <Link
-              href="/admin"
-              className="rounded-full border border-violet-200 px-4 py-2 text-sm font-semibold text-violet-800 hover:bg-violet-50"
-            >
-              Tümünü göster
-            </Link>
-          ) : null}
-        </div>
-      </form>
+        <AdminListFilters />
+      </Suspense>
 
       {error ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
@@ -218,12 +137,15 @@ export default async function AdminSubmissionsPage({
                       </div>
                     </div>
                   </div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
                   <Link
                     href={`/admin/${r.id}`}
                     className="inline-flex shrink-0 items-center justify-center rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-violet-700"
                   >
                     Detayı aç
                   </Link>
+                  <AdminDeleteButton id={r.id} />
+                </div>
                 </div>
               </li>
             ))}
@@ -244,6 +166,9 @@ export default async function AdminSubmissionsPage({
                   </th>
                   <th className="px-4 py-3 text-right font-semibold text-violet-950">
                     Detay
+                  </th>
+                  <th className="w-20 px-4 py-3 text-right font-semibold text-violet-950">
+                    Sil
                   </th>
                 </tr>
               </thead>
@@ -266,6 +191,9 @@ export default async function AdminSubmissionsPage({
                       >
                         Aç
                       </Link>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <AdminDeleteButton id={r.id} />
                     </td>
                   </tr>
                 ))}

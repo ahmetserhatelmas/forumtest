@@ -3,22 +3,16 @@ import { NextResponse } from "next/server";
 import { PatientFormPdfDocument } from "@/components/patient-form/PatientFormPdfDocument";
 import type { LanguageCode } from "@/constants/languages";
 import { normalizePatientFormData } from "@/lib/normalize-patient-form-data";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminService } from "@/lib/require-admin";
 
 export async function GET(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
+  const { db } = await requireAdminService();
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("submissions")
     .select("*")
     .eq("id", id)

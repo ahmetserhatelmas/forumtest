@@ -2,6 +2,8 @@
  * Tek seferlik: Supabase Auth’ta kullanıcı oluşturur (Realtime/WebSocket yok, sadece fetch).
  *
  *   ADMIN_EMAIL="..." ADMIN_PASSWORD="..." node --env-file=.env scripts/create-admin.mjs
+ *
+ * Aynı e-postayı .env içinde ADMIN_EMAILS veya ADMIN_EMAIL ile tanımlayın; aksi halde /admin erişimi reddedilir.
  */
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

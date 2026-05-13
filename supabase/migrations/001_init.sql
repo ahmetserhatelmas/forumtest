@@ -17,19 +17,26 @@ create index if not exists submissions_language_idx on public.submissions (langu
 alter table public.submissions enable row level security;
 
 -- Rows are inserted only via server code using the service role key (bypasses RLS).
--- Dashboard users (Supabase Auth) can read:
-create policy "submissions_select_authenticated"
+-- Reads: only service_role on the server after admin session check (no authenticated SELECT).
+drop policy if exists "submissions_deny_anon" on public.submissions;
+drop policy if exists "submissions_deny_authenticated" on public.submissions;
+
+create policy "submissions_deny_anon"
   on public.submissions
-  for select
+  for all
+  to anon
+  using (false)
+  with check (false);
+
+create policy "submissions_deny_authenticated"
+  on public.submissions
+  for all
   to authenticated
-  using (true);
+  using (false)
+  with check (false);
 
 insert into storage.buckets (id, name, public)
 values ('form-attachments', 'form-attachments', false)
 on conflict (id) do nothing;
 
--- Signed-in admins may download attachments:
-create policy "form_attachments_select_authenticated"
-  on storage.objects for select
-  to authenticated
-  using (bucket_id = 'form-attachments');
+-- Attachments: upload/read only via service_role (signed URLs created server-side).
