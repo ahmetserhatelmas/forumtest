@@ -338,7 +338,7 @@ export function buildSubmissionEmailBody(
         const list = attNames.map((fn) => `<code style="font-size:12px;">${esc(fn)}</code>`).join(", ");
         const tail = meta.adminUrl
           ? ` veya <a href="${esc(meta.adminUrl)}">panelde açın</a>.`
-          : ` Panele doğrudan link için sunucu ortamında <code>NEXT_PUBLIC_SITE_URL</code> tanımlayın.`;
+          : "";
         const noun =
           attNames.length > 1
             ? "Dosyalar bu e-postanın <strong>eklerinde</strong>"
