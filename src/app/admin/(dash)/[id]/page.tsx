@@ -5,6 +5,7 @@ import type { LanguageCode } from "@/constants/languages";
 import { languageLabel } from "@/constants/languages";
 import { normalizePatientFormData } from "@/lib/normalize-patient-form-data";
 import { requireAdminService } from "@/lib/require-admin";
+import { CopyShareLink } from "./CopyShareLink";
 
 export const dynamic = "force-dynamic";
 
@@ -66,12 +67,15 @@ export default async function AdminSubmissionDetailPage({
         >
           ← Listeye dön
         </Link>
-        <a
-          href={`/admin/${id}/export`}
-          className="rounded-full bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
-        >
-          Formu indir
-        </a>
+        <div className="flex flex-wrap items-center gap-2">
+          <CopyShareLink id={id} />
+          <a
+            href={`/admin/${id}/export`}
+            className="rounded-full bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+          >
+            Formu indir
+          </a>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-violet-100 bg-white p-6 shadow-sm">
